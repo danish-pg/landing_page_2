@@ -739,5 +739,68 @@ a {
         <!-- END CONTENT -->
 
     </div>
+
+    <script type="text/javascript">
+
+    window.addEventListener('load', function() {
+
+        // ── 1. INITIALISE BRAZE FIRST ──
+        braze.initialize('d5300222-4d6c-488d-97ab-93bc99c0e02e', {
+            baseUrl:                     'sdk.iad-03.braze.com',
+            enableLogging:               true,
+            allowUserSuppliedJavascript: true,
+            sessionTimeoutInSeconds:     30,
+        });
+
+        // ── 2. OPEN SESSION ──
+        braze.openSession();
+
+        // ── 3. SUBSCRIBE TO IN-APP MESSAGES ──
+        braze.subscribeToInAppMessage(function(inAppMessage) {
+            braze.showInAppMessage(inAppMessage);
+        });
+
+        console.log('✅ Braze SDK Initialised');
+
+        // ── 4. DECODE URL PARAMS ──
+        let decodedParams = {};
+
+        try {
+            const urlParams = new URLSearchParams(window.location.search);
+            const rawParams = urlParams.get('params');
+
+            if (rawParams) {
+
+                decodedParams = JSON.parse(atob(rawParams));
+                console.log('✅ Decoded Params:', decodedParams);
+
+                // ── 5. CHANGE USER ──
+                // Now braze is ready ✅
+                if (decodedParams.userId) {
+                    braze.changeUser(decodedParams.userId);
+                    console.log('✅ Braze User Set:', decodedParams.userId);
+                }
+
+                // ── 6. LOG CUSTOM EVENT ──
+                // Now braze is ready ✅
+                braze.logCustomEvent('brazeTest2', {
+                    page_name:   'lucky_draw_landing_page_2',
+                    marketplace: decodedParams.marketplace || '',
+                    bu:          decodedParams.bu          || '',
+                });
+
+                console.log('✅ brazeTest2 event logged');
+
+            } else {
+                console.warn('⚠️ No params found in URL');
+            }
+
+        } catch (error) {
+            console.error('❌ Error decoding params:', error);
+        }
+
+    }); // ── END load event ──
+
+</script>
 </body>
 </html>
