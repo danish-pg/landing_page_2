@@ -792,11 +792,11 @@ a {
                 console.log('✅ Decoded Params:', decodedParams);
 
                 // Fetch promo_code from params and display it inside entry-code element
-                if (decodedParams.promo_code) {
+                if (decodedParams.myproperty_ticket_number) {
                     const entryCodeDiv = document.getElementById('entryCode');
                     if (entryCodeDiv) {
-                        entryCodeDiv.textContent = decodedParams.promo_code;
-                        console.log('✅ Updated entry code to:', decodedParams.promo_code);
+                        entryCodeDiv.textContent = decodedParams.myproperty_ticket_number;
+                        console.log('✅ Updated entry code to:', decodedParams.myproperty_ticket_number);
                     }
                 }
 
