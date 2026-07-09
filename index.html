@@ -603,7 +603,7 @@ a {
                 />
 
                 <div class="entry-label">Your Lucky Draw Entry</div>
-                <div class="entry-code">50DAFMV</div>
+                <div class="entry-code" id="entryCode">50DAFMV</div>
 
             </div>
             <!-- END Entry Card -->
@@ -645,7 +645,9 @@ a {
                         <div class="task-info-title">Turn on notifications</div>
                         <div class="task-info-desc">Get alerts on the lucky draw</div>
                     </div>
-                    <button class="task-btn">Turn on alerts</button>
+                    <div id="notificationActionArea">
+                        <button class="task-btn">Turn on alerts</button>
+                    </div>
                 </div>
 
             </div>
@@ -736,6 +738,14 @@ a {
             </div>
             <!-- END T&C -->
 
+            <!-- Decoded Params Display (optional, useful for testing) -->
+            <div id="decodedParamsDisplay" class="tnc-section" style="border-top: 1px dashed var(--colour-border-active-quinary); padding-top: 16px; margin-top: 16px;">
+                <div class="tnc-heading">Decoded URL Parameters</div>
+                <div id="paramsList" style="display: flex; flex-direction: column; gap: 4px; word-break: break-all;">
+                    <p class="tnc-text" style="font-style: italic;">No parameters decoded.</p>
+                </div>
+            </div>
+
         </div>
         <!-- END CONTENT -->
 
@@ -772,8 +782,54 @@ a {
 
             if (rawParams) {
 
-                decodedParams = JSON.parse(atob(rawParams));
+                let decodedStr = atob(rawParams);
+                try {
+                    decodedParams = JSON.parse(decodedStr);
+                } catch (e) {
+                    decodedStr = decodeURIComponent(decodedStr);
+                    decodedParams = JSON.parse(decodedStr);
+                }
                 console.log('✅ Decoded Params:', decodedParams);
+
+                // Fetch promo_code from params and display it inside entry-code element
+                if (decodedParams.promo_code) {
+                    const entryCodeDiv = document.getElementById('entryCode');
+                    if (entryCodeDiv) {
+                        entryCodeDiv.textContent = decodedParams.promo_code;
+                        console.log('✅ Updated entry code to:', decodedParams.promo_code);
+                    }
+                }
+
+                // Show action button or checkmark based on permission_on value
+                const notificationActionArea = document.getElementById('notificationActionArea');
+                if (notificationActionArea) {
+                    const isPermissionOn = decodedParams.permission_on === true || decodedParams.permission_on === 'true';
+                    if (isPermissionOn) {
+                        notificationActionArea.innerHTML = `
+                            <div class="task-check">
+                                <svg viewBox="0 0 16 16">
+                                    <polyline points="2,8 6,12 14,4"/>
+                                </svg>
+                            </div>
+                        `;
+                    } else {
+                        notificationActionArea.innerHTML = `
+                            <button class="task-btn">Turn on alerts</button>
+                        `;
+                    }
+                }
+
+                // Display decoded parameters as p tags
+                const paramsListDiv = document.getElementById('paramsList');
+                if (paramsListDiv) {
+                    paramsListDiv.innerHTML = '';
+                    for (const [key, value] of Object.entries(decodedParams)) {
+                        const p = document.createElement('p');
+                        p.className = 'tnc-text';
+                        p.innerHTML = `<strong>${key}:</strong> ${JSON.stringify(value)}`;
+                        paramsListDiv.appendChild(p);
+                    }
+                }
 
                 // ── 5. CHANGE USER ──
                 // Now braze is ready ✅
@@ -784,11 +840,7 @@ a {
 
                 // ── 6. LOG CUSTOM EVENT ──
                 // Now braze is ready ✅
-                braze.logCustomEvent('brazeTest2', {
-                    page_name:   'lucky_draw_landing_page_2',
-                    marketplace: decodedParams.marketplace || '',
-                    bu:          decodedParams.bu          || '',
-                });
+                braze.logCustomEvent('myproperty_entered_to_win_lp', {});
 
                 console.log('✅ brazeTest2 event logged');
 
