@@ -840,7 +840,9 @@ a {
 
                 // ── 6. LOG CUSTOM EVENT ──
                 // Now braze is ready ✅
-                braze.logCustomEvent('myproperty_entered_to_win_lp', {});
+                if(decodedParams.lp === 'true'){
+                   braze.logCustomEvent('myproperty_entered_to_win_lp', {});
+                }     
 
                 console.log('✅ brazeTest2 event logged');
 
