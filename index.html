@@ -806,16 +806,41 @@ a {
                     const isPermissionOn = decodedParams.permission_on === true || decodedParams.permission_on === 'true';
                     if (isPermissionOn) {
                         notificationActionArea.innerHTML = `
-                            <div class="task-check">
-                                <svg viewBox="0 0 16 16">
-                                    <polyline points="2,8 6,12 14,4"/>
-                                </svg>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div class="task-check">
+                                    <svg viewBox="0 0 16 16">
+                                        <polyline points="2,8 6,12 14,4"/>
+                                    </svg>
+                                </div>
+                                <button class="task-btn" id="turnOnAlertsBtn">Turn on alerts</button>
                             </div>
                         `;
                     } else {
                         notificationActionArea.innerHTML = `
-                            <button class="task-btn">Turn on alerts</button>
+                            <button class="task-btn" id="turnOnAlertsBtn">Turn on alerts</button>
                         `;
+                    }
+
+                    // Add click event listener to trigger custom event for testing (always attach it since button is always visible)
+                    const turnOnAlertsBtn = document.getElementById('turnOnAlertsBtn');
+                    if (turnOnAlertsBtn) {
+                        turnOnAlertsBtn.addEventListener('click', function() {
+                            try {
+                                // Trigger Braze custom event
+                                braze.logCustomEvent('myproperty_clicked_turn_on_notifications', {
+                                    userId:      decodedParams.userId      || '',
+                                    anonymousId: decodedParams.anonymousId || '',
+                                    marketplace: decodedParams.marketplace || 'sg',
+                                    bu:          decodedParams.bu          || 'consumer',
+                                });
+                                console.log('✅ myproperty_clicked_turn_on_notifications event logged');
+                                
+                                // Show an alert to confirm the event has triggered successfully during testing
+                                alert('🔔 Turn On Alerts Clicked!\nBraze Custom Event: "myproperty_clicked_turn_on_notifications" has been triggered successfully.');
+                            } catch (err) {
+                                console.error('❌ Error triggering custom event:', err);
+                            }
+                        });
                     }
                 }
 
